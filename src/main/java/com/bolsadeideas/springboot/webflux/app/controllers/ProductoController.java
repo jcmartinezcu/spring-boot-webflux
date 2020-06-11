@@ -40,6 +40,7 @@ public class ProductoController {
 		
 		return "listar";
 	}
+	
 	@GetMapping("/listar-datadriver")
 	public String listarDataDriver(Model model) {
 		
@@ -51,6 +52,23 @@ public class ProductoController {
 				.delayElements(Duration.ofSeconds(1));
 		
 		productos.subscribe( prod -> log.info(prod.getNombre()));
+		
+		model.addAttribute("productos", new ReactiveDataDriverContextVariable(productos,1));
+		model.addAttribute("titulo", "Listado de productos");
+		
+		return "listar";
+	}
+	
+	@GetMapping("/listar-full")
+	public String listarFull(Model model) {
+		
+		Flux<Producto> productos = dao.findAll()
+				.map(producto ->{
+					producto.setNombre(producto.getNombre().toUpperCase());
+					return producto;
+				})
+				.repeat(5000);
+		
 		
 		model.addAttribute("productos", new ReactiveDataDriverContextVariable(productos,1));
 		model.addAttribute("titulo", "Listado de productos");
